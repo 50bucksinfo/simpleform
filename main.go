@@ -32,6 +32,7 @@ func startServer() {
 func wireupRoutes(r *mux.Router) {
 	r.HandleFunc("/", viewHandler("index.html"))
 	r.HandleFunc("/about", viewHandler("about.html"))
+	r.HandleFunc("/demo", viewHandler("demo.html"))
 }
 
 func viewHandler(view string) http.HandlerFunc {

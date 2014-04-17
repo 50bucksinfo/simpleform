@@ -1,0 +1,49 @@
+<div class='container'>
+  <h1 class='page-header'>
+    Demo form
+  </h1>
+  <!--TODO change this to a getsimplesite action -->
+  <form id='demo-form' role=form action="/messages?form_api_token=39c8f9e5a2de15ad63469475702522b9" method="post" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" name='name' class="form-control">
+    </div>
+
+
+    <div class="form-group">
+      <label>Avatar</label>
+      <input type="file" name='avatar' class="form-control">
+    </div>
+
+
+    <div class="form-group">
+      <label>Address</label>
+      <textarea name='address' rows=8 class="form-control"></textarea>
+    </div>
+
+
+    <div class="form-group">
+      <label>Message</label>
+      <textarea type="text" name='message' class="form-control"></textarea>
+    </div>
+
+
+    <div class="form-group">
+      <label>Gender</label>
+      <select name='gender' class="form-control">
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+      </select>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" name='contact' value='Yes'> Do you want us to contact you?
+        <input type='hidden' name='contact' value='No'>
+      </label>
+    </div>
+
+    <button type='submit' class="btn btn-primary">Submit</button>
+  </form>
+</div>
