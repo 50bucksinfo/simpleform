@@ -17,6 +17,7 @@ func main() {
 	startServer()
 }
 
+//http server
 func startServer() {
 	glog.Infoln("Starting server at http://localhost:3030/")
 	r := mux.NewRouter()
@@ -25,13 +26,17 @@ func startServer() {
 }
 
 func wireupRoutes(r *mux.Router) {
-	r.HandleFunc("/", HomeHandler)
+	r.HandleFunc("/", viewHandler("index.html"))
+	r.HandleFunc("/about", viewHandler("about.html"))
 }
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, "index.html", "")
+func viewHandler(view string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		render(w, view, "")
+	}
 }
 
+//templates
 var templates *template.Template
 
 func render(w io.Writer, view string, data interface{}) {
