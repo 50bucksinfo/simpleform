@@ -10,19 +10,23 @@ import (
 	"net/http"
 )
 
+var configPath string
+
 func main() {
 	defer glog.Flush()
+	flag.StringVar(&configPath, "config", "./config.json", "config file path")
 	flag.Parse()
+	loadConfig()
 	loadTemplates()
 	startServer()
 }
 
 //http server
 func startServer() {
-	glog.Infoln("Starting server at http://localhost:3030/")
+	glog.Infof("Starting server at http://localhost%s/\n", config.Port)
 	r := mux.NewRouter()
 	wireupRoutes(r)
-	glog.Fatalln(http.ListenAndServe(":3030", r), "failed to start server")
+	glog.Fatalln(http.ListenAndServe(config.Port, r), "failed to start server")
 }
 
 func wireupRoutes(r *mux.Router) {
@@ -58,5 +62,4 @@ func loadTemplates() {
 	if err != nil {
 		glog.Fatalln(err, "failed to load templates")
 	}
-	glog.Infoln(templates.Name(), "templates")
 }
