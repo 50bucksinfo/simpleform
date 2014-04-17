@@ -7,7 +7,7 @@ Go to http://getsimpleform.com/downloads for more information
 
 ## Working
 
-## TODO
+## Todo
   - Embedding of a form
   - Email notifications
   - Redirect to
@@ -19,3 +19,4 @@ Go to http://getsimpleform.com/downloads for more information
   - Ajax form submissions
   - Access messages using JSON
   - Dont store messages and just email?
+  - Validation
