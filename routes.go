@@ -23,6 +23,7 @@ func wireupRoutes(r *mux.Router) {
 	r.HandleFunc("/", viewHandler("index.html")).Methods("GET")
 	r.HandleFunc("/about", viewHandler("about.html")).Methods("GET")
 	r.HandleFunc("/demo", viewHandler("demo.html")).Methods("GET")
+	r.HandleFunc("/messages", messagesIndexandler).Methods("GET")
 
 	//POST
 	r.HandleFunc("/users", createUserHandler).Methods("POST")

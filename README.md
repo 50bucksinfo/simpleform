@@ -1,6 +1,8 @@
 Simple Form
 ===========
 
+#This code is not ready for primetime :)
+
 Code which drives http://getsimpleform.com/
 
 Go to http://getsimpleform.com/downloads for more information

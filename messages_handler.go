@@ -9,6 +9,35 @@ import (
 	"time"
 )
 
+type message struct {
+	ID                                                int
+	FormApiToken, Data, RequestIP, Referrer, FormName string
+	Spam                                              bool
+	CreatedAt                                         time.Time
+}
+
+//TODO add pagination
+func messagesIndexandler(w http.ResponseWriter, r *http.Request) {
+	messages := make([]*message, 0, 100)
+	formApiToken := r.FormValue("form_api_token")
+	rows, err := db.Query("SELECT id, form_api_token, data, request_ip, referrer, form_name, spam, created_at  FROM messages WHERE form_api_token = $1", formApiToken)
+	if err != nil {
+		glog.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("An error occured"))
+		return
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		m := &message{}
+		rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.Spam, &m.CreatedAt)
+		messages = append(messages, m)
+	}
+	glog.Infoln(messages)
+	render(w, "messages.html", messages)
+}
+
 //form post handler start
 func messageHandler(w http.ResponseWriter, r *http.Request) {
 	//parse the form
@@ -68,5 +97,3 @@ func normalizeName(name string) string {
 	name = formNameWhiteList.ReplaceAllString(name, " ")
 	return strings.Trim(name, " ")
 }
-
-//form post handler end

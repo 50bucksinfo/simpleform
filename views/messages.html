@@ -1,0 +1,14 @@
+<div class='container'>
+  <table class="table">
+    {{range .}}
+    <tr>
+      <td>{{.ID}}</td>
+      <td>{{.FormName}}</td>
+      <td>{{.Data}}</td>
+      <td>{{.RequestIP}}</td>
+      <td>{{.Referrer}}</td>
+      <td>{{.CreatedAt}}</td>
+    </tr>
+    {{end}}
+  </table>
+</div>
