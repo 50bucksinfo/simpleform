@@ -1,5 +1,10 @@
 {
-  "port"             : ":8090",
-  "connectionString" : "host=/var/run/postgresql dbname=simpleform sslmode=disable",
-  "host"             : "localhost"
+  "port": ":8090",
+  "connectionString": "host=/var/run/postgresql dbname=simpleform sslmode=disable",
+  "host": "localhost",
+  "demo": {
+    "email": "simplesite@mailinator.com",
+    "apiToken": "636f736d696376656e74636f736d6963",
+    "formApiToken": "73696d706c65666f726d73696d706c65"
+  }
 }

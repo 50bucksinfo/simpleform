@@ -22,3 +22,9 @@ Go to http://getsimpleform.com/downloads for more information
   - Access messages using JSON
   - Dont store messages and just email?
   - Validation
+
+
+## To blog about
+  - Form name
+  - Ability to setup an email handler e.g. /messages?email=foo@bar.com
+  - Send emails via httppost

@@ -208,6 +208,14 @@ CREATE UNIQUE INDEX index_users_on_form_api_token ON users USING btree (form_api
 
 
 --
+-- INSERT DEMO user
+--
+
+INSERT INTO users(email, api_token, form_api_token, akismet_key, created_at, updated_at) VALUES('simplesite@mailinator.com','636f736d696376656e74636f736d6963', '73696d706c65666f726d73696d706c65', NULL, NOW(), NOW())
+
+
+
+--
 -- PostgreSQL database dump complete
 --
 

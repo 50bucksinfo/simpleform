@@ -10,6 +10,11 @@ var config struct {
 	Port             string `json:"port"`
 	ConnectionString string `json:"connectionString"`
 	Host             string `json:"host"`
+	Demo             struct {
+		Email        string `json:"email"`
+		ApiToken     string `json:"apiToken"`
+		FormApiToken string `json:"formApiToken"`
+	} `json:"demo"`
 }
 
 func loadConfig() {
@@ -18,6 +23,9 @@ func loadConfig() {
 	if err != nil {
 		glog.Fatalln(err, "config file not found")
 	}
-	json.Unmarshal(configBytes, &config)
+	err = json.Unmarshal(configBytes, &config)
+	if err != nil {
+		glog.Fatalln(err, "json parse error")
+	}
 	glog.Infoln("loaded config: ", config)
 }

@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"html/template"
 	"io"
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -42,6 +45,7 @@ func wireupRoutes(r *mux.Router) {
 
 	//POST
 	r.HandleFunc("/users", createUserHandler).Methods("POST")
+	r.HandleFunc("/messages", messageHandler).Methods("POST")
 }
 
 func viewHandler(view string) http.HandlerFunc {
@@ -72,6 +76,77 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	//show him a page on how to use this new token
 	w.Write([]byte("awesome"))
 }
+
+//form post handler start
+func messageHandler(w http.ResponseWriter, r *http.Request) {
+	//parse the form
+	r.ParseForm()
+
+	formName := withDefault(r.FormValue("_name"), r.URL.Path[1:], "Default Form")
+	formName = normalizeName(formName)
+	r.Form.Del("_name")
+
+	redirect := withDefault(r.FormValue("_redirect"), r.FormValue("redirect_to "), "http://"+r.Host+r.URL.Path+"#thank-you")
+	r.Form.Del("_redirect")
+	r.Form.Del("redirect_to")
+
+	data, err := json.Marshal(r.Form)
+	if err != nil {
+		glog.Errorln(err)
+	}
+
+	//validate api token
+	formApiToken := r.FormValue("form_api_token")
+	var dummy int
+	err = db.QueryRow("SELECT 1 FROM users WHERE form_api_token = $1", formApiToken).Scan(&dummy)
+
+	if err != nil {
+		glog.Errorln(err)
+		w.Write([]byte("Invalid api token"))
+		return
+	}
+
+	var id int
+	err = db.QueryRow("INSERT INTO forms(form_api_token, data, request_ip, referrer, form_name, created_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING ID",
+		formApiToken, string(data), r.RemoteAddr, "REFERRER", formName, time.Now().UTC()).Scan(&id)
+	glog.Infoln("inserted form", id)
+
+	//handle spam prevention
+	//postProcessForm(id)
+
+	if err != nil {
+		glog.Errorln(err, "ERROR in INSERT")
+	}
+
+	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		http.Redirect(w, r, redirect, http.StatusMovedPermanently)
+	}
+}
+
+var formNameWhiteList = regexp.MustCompile("[^a-zA-Z0-9]+")
+
+func normalizeName(name string) string {
+	name = formNameWhiteList.ReplaceAllString(name, " ")
+	return strings.Trim(name, " ")
+}
+
+//form post handler end
+
+//utils
+func withDefault(args ...string) string {
+
+	for _, arg := range args {
+		if arg != "" {
+			return arg
+		}
+	}
+
+	return ""
+}
+
+//utils end
 
 //templates
 var templates *template.Template
