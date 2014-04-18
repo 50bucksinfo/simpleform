@@ -5,6 +5,8 @@ Code which drives http://getsimpleform.com/
 
 Go to http://getsimpleform.com/downloads for more information
 
+#TODO move this readme to a getsimpleform
+
 ## Working
 
 ## Todo

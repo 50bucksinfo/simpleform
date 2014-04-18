@@ -197,7 +197,7 @@ CREATE UNIQUE INDEX index_users_on_api_token ON users USING btree (api_token);
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -; Tablespace:
 --
 
-CREATE UNIQUE INDEX index_users_on_email ON users USING btree (email);
+CREATE INDEX index_users_on_email ON users USING btree (email);
 
 
 --
