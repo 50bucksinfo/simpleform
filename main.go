@@ -86,7 +86,9 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	formName = normalizeName(formName)
 	r.Form.Del("_name")
 
-	redirect := withDefault(r.FormValue("_redirect"), r.FormValue("redirect_to "), "http://"+r.Host+r.URL.Path+"#thank-you")
+	redirect := withDefault(r.Referer(), "http://"+r.Host+r.URL.Path)
+	redirect += "#thank-you"
+	redirect = withDefault(r.FormValue("_redirect"), r.FormValue("redirect_to "), redirect)
 	r.Form.Del("_redirect")
 	r.Form.Del("redirect_to")
 
@@ -104,6 +106,7 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		glog.Errorln(err)
+		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Invalid api token"))
 		return
 	}

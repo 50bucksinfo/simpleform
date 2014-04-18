@@ -28,3 +28,4 @@ Go to http://getsimpleform.com/downloads for more information
   - Form name
   - Ability to setup an email handler e.g. /messages?email=foo@bar.com
   - Send emails via httppost
+  - Send requests without referrer to spam
