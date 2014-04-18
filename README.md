@@ -7,10 +7,11 @@ Go to http://getsimpleform.com/downloads for more information
 
 #TODO move this readme to a getsimpleform
 
-## Working
+## Done
+  - Embedding of a form
+  - Listing of messages
 
 ## Todo
-  - Embedding of a form
   - Email notifications
   - Redirect to
   - Name of a form
