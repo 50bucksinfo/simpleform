@@ -50,7 +50,7 @@ func wireupRoutes(r *mux.Router) {
 
 func viewHandler(view string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render(w, view, "")
+		render(w, view, config)
 	}
 }
 
@@ -80,7 +80,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 //form post handler start
 func messageHandler(w http.ResponseWriter, r *http.Request) {
 	//parse the form
-	r.ParseForm()
+	r.ParseMultipartForm(32 << 20) //32 MB
 
 	formName := withDefault(r.FormValue("_name"), r.URL.Path[1:], "Default Form")
 	formName = normalizeName(formName)
@@ -90,13 +90,15 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	r.Form.Del("_redirect")
 	r.Form.Del("redirect_to")
 
+	formApiToken := r.FormValue("form_api_token")
+	r.Form.Del("form_api_token")
+
 	data, err := json.Marshal(r.Form)
 	if err != nil {
 		glog.Errorln(err)
 	}
 
 	//validate api token
-	formApiToken := r.FormValue("form_api_token")
 	var dummy int
 	err = db.QueryRow("SELECT 1 FROM users WHERE form_api_token = $1", formApiToken).Scan(&dummy)
 
@@ -107,8 +109,8 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var id int
-	err = db.QueryRow("INSERT INTO forms(form_api_token, data, request_ip, referrer, form_name, created_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING ID",
-		formApiToken, string(data), r.RemoteAddr, "REFERRER", formName, time.Now().UTC()).Scan(&id)
+	err = db.QueryRow("INSERT INTO messages(form_api_token, data, request_ip, referrer, form_name, created_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING ID",
+		formApiToken, string(data), r.RemoteAddr, r.Referer(), formName, time.Now().UTC()).Scan(&id)
 	glog.Infoln("inserted form", id)
 
 	//handle spam prevention
