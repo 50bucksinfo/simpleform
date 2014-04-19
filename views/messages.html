@@ -9,9 +9,8 @@
 
     {{range $index, $element := .FormData}}
     <dt>{{$index}}</dt>
-    <!--<dd>{{.join}}</dd>-->
+    <dd>{{join $element ","}}</dd>
     {{end}}
-    {{title .FormName}}
 
     <dt>Request IP</dt>
     <dd>{{.RequestIP}}</dd>
