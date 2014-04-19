@@ -1,14 +1,26 @@
 <div class='container'>
-  <table class="table">
-    {{range .}}
-    <tr>
-      <td>{{.ID}}</td>
-      <td>{{.FormName}}</td>
-      <td>{{.Data}}</td>
-      <td>{{.RequestIP}}</td>
-      <td>{{.Referrer}}</td>
-      <td>{{.CreatedAt}}</td>
-    </tr>
+  {{range .}}
+  <dl class="dl-horizontal">
+    <dt>ID</dt>
+    <dd>{{.ID}}</dd>
+
+    <dt>Form Name</dt>
+    <dd>{{.FormName}}</dd>
+
+    {{range $index, $element := .FormData}}
+    <dt>{{$index}}</dt>
+    <!--<dd>{{.join}}</dd>-->
     {{end}}
-  </table>
+    {{title .FormName}}
+
+    <dt>Request IP</dt>
+    <dd>{{.RequestIP}}</dd>
+
+    <dt>Referrer</dt>
+    <dd>{{.Referrer}}</dd>
+
+    <dt>Submitted At</dt>
+    <dd>{{.CreatedAt}}</dd>
+  </dl>
+  {{end}}
 </div>

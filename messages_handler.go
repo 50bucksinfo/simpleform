@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"github.com/golang/glog"
+	"net"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -12,6 +14,7 @@ import (
 type message struct {
 	ID                                                int
 	FormApiToken, Data, RequestIP, Referrer, FormName string
+	FormData                                          url.Values
 	Spam                                              bool
 	CreatedAt                                         time.Time
 }
@@ -32,6 +35,9 @@ func messagesIndexandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		m := &message{}
 		rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.Spam, &m.CreatedAt)
+		//TODO move this to a message method
+		m.FormData = make(url.Values)
+		json.Unmarshal([]byte(m.Data), &m.FormData)
 		messages = append(messages, m)
 	}
 	glog.Infoln(messages)
@@ -72,9 +78,14 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		ip = r.RemoteAddr
+	}
+
 	var id int
 	err = db.QueryRow("INSERT INTO messages(form_api_token, data, request_ip, referrer, form_name, created_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING ID",
-		formApiToken, string(data), r.RemoteAddr, r.Referer(), formName, time.Now().UTC()).Scan(&id)
+		formApiToken, string(data), ip, r.Referer(), formName, time.Now().UTC()).Scan(&id)
 	glog.Infoln("inserted form", id)
 
 	//handle spam prevention
