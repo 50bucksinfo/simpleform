@@ -2,6 +2,29 @@
   <h1 class='page-header'>
     Demo form
   </h1>
+
+  <p>
+    This is a form which demonstrates the use of simpleform.
+    <br />
+    You can check
+    <ol>
+      <li>
+        Submissions to this form here: <a target='_blank' href='/messages?api_token={{.Demo.ApiToken}}'>Form submissions</a>
+      </li>
+      <li>
+        Email notifications sent on form submissions here: <a target='_blank'  href='http://simpleform.mailinator.com'>Email notifications</a>. <i>They will be sent to your email for your forms.</i>
+      </li>
+      <li>
+        Access messages via JSON at <a target='_blank' href='/messages.json?api_token={{.Demo.ApiToken}}'>http://getsimpleform.com/messages.json?api_token={{.Demo.ApiToken}}</a>
+      </li>
+    </ol>
+  </p>
+
+  <p id='thank-you-message' class='hidden alert alert-success'>
+    Thank you for contacting us we'll get back to you, as soon as we can.
+  </p>
+
+
   <!--TODO change this to a getsimplesite action -->
   <form id='demo-form' role=form action="/messages?form_api_token={{.Demo.FormApiToken}}" method="post" enctype="multipart/form-data">
 
@@ -47,3 +70,12 @@
     <button type='submit' class="btn btn-primary">Submit</button>
   </form>
 </div>
+<script type="text/javascript">
+window.onload = (function() {
+  if (window.location.hash == '#thank-you') {
+    var el = document.getElementById('thank-you-message');
+    el.className = el.className.replace('hidden', '');
+    window.location.hash = '';
+  }
+})
+</script>

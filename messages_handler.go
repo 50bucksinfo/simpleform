@@ -20,15 +20,42 @@ type message struct {
 }
 
 //TODO add pagination
-func messagesIndexandler(w http.ResponseWriter, r *http.Request) {
-	messages := make([]*message, 0, 100)
-	formApiToken := r.FormValue("form_api_token")
-	rows, err := db.Query("SELECT id, form_api_token, data, request_ip, referrer, form_name, spam, created_at  FROM messages WHERE form_api_token = $1", formApiToken)
+func messagesIndexHandler(w http.ResponseWriter, r *http.Request) {
+	apiToken := r.FormValue("api_token")
+	messages, err := getMessages(apiToken)
+
 	if err != nil {
 		glog.Errorln(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("An error occured"))
 		return
+	}
+
+	render(w, "messages.html", messages)
+}
+
+func messagesIndexJsonHandler(w http.ResponseWriter, r *http.Request) {
+	apiToken := r.FormValue("api_token")
+	messages, err := getMessages(apiToken)
+
+	if err != nil {
+		glog.Errorln(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("An error occured"))
+		return
+	}
+
+	messageJson, _ := json.Marshal(messages)
+
+	w.Write(messageJson)
+}
+
+func getMessages(apiToken string) ([]message, error) {
+	messages := make([]message, 0, 100)
+	rows, err := db.Query("SELECT id, form_api_token, data, request_ip, referrer, form_name, spam, created_at  FROM messages WHERE form_api_token = (SELECT form_api_token FROM users WHERE api_token = $1 LIMIT 1)", apiToken)
+
+	if err != nil {
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -38,10 +65,9 @@ func messagesIndexandler(w http.ResponseWriter, r *http.Request) {
 		//TODO move this to a message method
 		m.FormData = make(url.Values)
 		json.Unmarshal([]byte(m.Data), &m.FormData)
-		messages = append(messages, m)
+		messages = append(messages, *m)
 	}
-	glog.Infoln(messages)
-	render(w, "messages.html", messages)
+	return messages, nil
 }
 
 //form post handler start
