@@ -61,7 +61,11 @@ func getMessages(apiToken string) ([]message, error) {
 	defer rows.Close()
 	for rows.Next() {
 		m := &message{}
-		rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.Spam, &m.CreatedAt)
+		err = rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.Spam, &m.CreatedAt)
+		if err != nil {
+			glog.Errorln(err, "messages index row.scan")
+			continue
+		}
 		//TODO move this to a message method
 		m.FormData = make(url.Values)
 		json.Unmarshal([]byte(m.Data), &m.FormData)
