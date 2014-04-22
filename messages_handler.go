@@ -19,6 +19,14 @@ type message struct {
 	CreatedAt                                         time.Time
 }
 
+type messageJson struct {
+	ID                            int
+	RequestIP, Referrer, FormName string
+	FormData                      map[string]string
+	Spam                          bool
+	CreatedAt                     time.Time
+}
+
 //TODO add pagination
 func messagesIndexHandler(w http.ResponseWriter, r *http.Request) {
 	apiToken := r.FormValue("api_token")
@@ -45,14 +53,28 @@ func messagesIndexJsonHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messageJson, _ := json.Marshal(messages)
+	jsonMessages := make([]messageJson, 0, len(messages))
+	for _, message := range messages {
+		mj := messageJson{ID: message.ID, RequestIP: message.RequestIP, Referrer: message.Referrer, FormName: message.FormName, Spam: message.Spam, CreatedAt: message.CreatedAt}
+		mj.FormData = make(map[string]string)
+		for k, v := range message.FormData {
+			mj.FormData[k] = strings.Join(v, ",")
+		}
+		jsonMessages = append(jsonMessages, mj)
+	}
+
+	messageJson, err := json.Marshal(jsonMessages)
+
+	if err != nil {
+		glog.Errorln(err, "JSON MARSHAL ERROR")
+	}
 
 	w.Write(messageJson)
 }
 
 func getMessages(apiToken string) ([]message, error) {
 	messages := make([]message, 0, 100)
-	rows, err := db.Query("SELECT id, form_api_token, data, request_ip, referrer, form_name, spam, created_at  FROM messages WHERE form_api_token = (SELECT form_api_token FROM users WHERE api_token = $1 LIMIT 1)", apiToken)
+	rows, err := db.Query("SELECT id, form_api_token, data, request_ip, referrer, form_name, created_at  FROM messages WHERE form_api_token = (SELECT form_api_token FROM users WHERE api_token = $1 LIMIT 1)", apiToken)
 
 	if err != nil {
 		return nil, err
@@ -61,7 +83,7 @@ func getMessages(apiToken string) ([]message, error) {
 	defer rows.Close()
 	for rows.Next() {
 		m := &message{}
-		err = rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.Spam, &m.CreatedAt)
+		err = rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.CreatedAt)
 		if err != nil {
 			glog.Errorln(err, "messages index row.scan")
 			continue
