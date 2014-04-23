@@ -8,7 +8,7 @@ import (
 	"runtime"
 )
 
-//returns the first not null string
+//returns the first non empty string
 //TODO; should probably rename it to something more obvious
 func withDefault(args ...string) string {
 	for _, arg := range args {

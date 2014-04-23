@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/golang/glog"
 	"html/template"
 	"strings"
 )
@@ -14,7 +13,5 @@ func loadTemplates() {
 		"join": strings.Join,
 	}
 	templates, err = template.New("").Funcs(fns).ParseGlob("./views/*.html")
-	if err != nil {
-		glog.Fatalln(err, "failed to load templates")
-	}
+	logFatal(err, "failed to load templates")
 }

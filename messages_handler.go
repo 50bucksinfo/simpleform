@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/golang/glog"
 	"net"
 	"net/http"
 	"net/url"
@@ -33,7 +32,7 @@ func messagesIndexHandler(w http.ResponseWriter, r *http.Request) {
 	messages, err := getMessages(apiToken)
 
 	if err != nil {
-		glog.Errorln(err)
+		logError(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("An error occured"))
 		return
@@ -47,7 +46,7 @@ func messagesIndexJsonHandler(w http.ResponseWriter, r *http.Request) {
 	messages, err := getMessages(apiToken)
 
 	if err != nil {
-		glog.Errorln(err)
+		logError(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("An error occured"))
 		return
@@ -66,7 +65,7 @@ func messagesIndexJsonHandler(w http.ResponseWriter, r *http.Request) {
 	messageJson, err := json.Marshal(jsonMessages)
 
 	if err != nil {
-		glog.Errorln(err, "JSON MARSHAL ERROR")
+		logError(err, "JSON MARSHAL ERROR")
 	}
 
 	w.Write(messageJson)
@@ -85,7 +84,7 @@ func getMessages(apiToken string) ([]message, error) {
 		m := &message{}
 		err = rows.Scan(&m.ID, &m.FormApiToken, &m.Data, &m.RequestIP, &m.Referrer, &m.FormName, &m.CreatedAt)
 		if err != nil {
-			glog.Errorln(err, "messages index row.scan")
+			logError(err, "messages index row.scan")
 			continue
 		}
 		//TODO move this to a message method
@@ -115,16 +114,14 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	r.Form.Del("form_api_token")
 
 	data, err := json.Marshal(r.Form)
-	if err != nil {
-		glog.Errorln(err)
-	}
+	logError(err)
 
 	//validate api token
 	var dummy int
 	err = db.QueryRow("SELECT 1 FROM users WHERE form_api_token = $1", formApiToken).Scan(&dummy)
 
 	if err != nil {
-		glog.Errorln(err)
+		logError(err)
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("Invalid api token"))
 		return
@@ -138,14 +135,12 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	var id int
 	err = db.QueryRow("INSERT INTO messages(form_api_token, data, request_ip, referrer, form_name, created_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING ID",
 		formApiToken, string(data), ip, r.Referer(), formName, time.Now().UTC()).Scan(&id)
-	glog.Infoln("inserted form", id)
+	logInfo("inserted form", id)
 
 	//handle spam prevention
 	//postProcessForm(id)
 
-	if err != nil {
-		glog.Errorln(err, "ERROR in INSERT")
-	}
+	logError(err, "ERROR in INSERT")
 
 	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
 		w.WriteHeader(http.StatusNoContent)

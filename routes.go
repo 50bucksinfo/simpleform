@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"html/template"
 	"io"
@@ -11,10 +10,10 @@ import (
 
 //http server
 func startServer() {
-	glog.Infof("Starting server at http://localhost%s/\n", config.Port)
+	logInfo("Starting server at http://localhost%s/\n", config.Port)
 	r := mux.NewRouter()
 	wireupRoutes(r)
-	glog.Fatalln(http.ListenAndServe(config.Port, r), "failed to start server")
+	logFatal(http.ListenAndServe(config.Port, r), "failed to start server")
 }
 
 //TODO do we really need mux here, if not remove it
@@ -40,11 +39,7 @@ func viewHandler(view string) http.HandlerFunc {
 func render(w io.Writer, view string, data interface{}) {
 	buf := bytes.NewBufferString("")
 	err := templates.ExecuteTemplate(buf, view, data)
-	if err != nil {
-		glog.Errorln(err, "failed to render view:", view)
-	}
+	logError(err, "failed to render view:", view)
 	err = templates.ExecuteTemplate(w, "layout.html", template.HTML(buf.String()))
-	if err != nil {
-		glog.Errorln(err, "failed to render view: layout.html")
-	}
+	logError(err, "failed to render view: layout.html")
 }
