@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/golang/glog"
 	"io/ioutil"
 )
 
@@ -18,14 +17,12 @@ var config struct {
 }
 
 func loadConfig() {
-	configBytes, err := ioutil.ReadFile("./config.json")
-	glog.Infoln("CONFIG: ", string(configBytes))
-	if err != nil {
-		glog.Fatalln(err, "config file not found")
-	}
+	configBytes, err := ioutil.ReadFile(configPath)
+	logInfo("CONFIG: ", string(configBytes))
+	logFatal(err, "config file not found")
+
 	err = json.Unmarshal(configBytes, &config)
-	if err != nil {
-		glog.Fatalln(err, "json parse error")
-	}
-	glog.Infoln("loaded config: ", config)
+	logFatal(err, "json parse error")
+
+	logInfo("loaded config: ", config)
 }

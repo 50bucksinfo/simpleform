@@ -4,9 +4,12 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"github.com/golang/glog"
+	"os"
 	"runtime"
 )
 
+//returns the first not null string
+//TODO; should probably rename it to something more obvious
 func withDefault(args ...string) string {
 	for _, arg := range args {
 		if arg != "" {
@@ -16,7 +19,7 @@ func withDefault(args ...string) string {
 	return ""
 }
 
-//random
+//create a 32 character random hex string
 func secureHex() string {
 	hexBytes := make([]byte, 32)
 	randomBytes := make([]byte, 16)
@@ -29,8 +32,22 @@ func secureHex() string {
 	return string(hexBytes)
 }
 
+//prints an informational message in the log
+func logInfo(args ...interface{}) {
+	glog.Infoln(args...)
+}
+
 //logs stack and error if there is an error
-func log(err error, args ...interface{}) {
+//also stops the app by calling os.Exit(-1)
+func logFatal(err error, args ...interface{}) {
+	logError(err, args...)
+	if err != nil {
+		os.Exit(-1)
+	}
+}
+
+//logs stack and error if there is an error
+func logError(err error, args ...interface{}) {
 	if err == nil {
 		return
 	}
