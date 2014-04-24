@@ -1,6 +1,20 @@
 Simple Form
 ===========
 
+##Setup
+To set up simpleform you need go and postgresql. Run the following commands to
+set it up.
+
+~~~sh
+go get github.com/minhajuddin/simpleform
+cd $GOPATH/src/github.com/minhajuddin/simpleform
+./setup.sh
+go build
+#tweak config.json as needed and then start
+#simpleform by running the following
+./simpleform
+~~~
+
 #This code is not ready for primetime :)
 
 Code which drives http://getsimpleform.com/
